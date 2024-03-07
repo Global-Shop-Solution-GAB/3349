@@ -1,0 +1,314 @@
+Program.Sub.ScreenSU.Start
+gui.SS_Form1..create
+gui.SS_Form1..caption("GCG Price List Discrepancy Report")
+gui.SS_Form1..size(3240,1810)
+gui.SS_Form1..position(0,0)
+gui.SS_Form1..event(unload,ss_form1_unload)
+gui.SS_Form1..alwaysontop(False)
+gui.SS_Form1..fontname("Arial")
+gui.SS_Form1..fontsize(8)
+gui.SS_Form1..forecolor(0)
+gui.SS_Form1..fontstyle(,,,,)
+gui.SS_Form1..BackColor(-2147483633)
+gui.SS_Form1..controlbox(True)
+gui.SS_Form1..maxbutton(False)
+gui.SS_Form1..minbutton(False)
+gui.SS_Form1..mousepointer(0)
+gui.SS_Form1..moveable(True)
+gui.SS_Form1..sizeable(False)
+gui.SS_Form1..ShowInTaskBar(True)
+gui.SS_Form1..titlebar(True)
+gui.SS_Form1.lbl_txtFile.create(label,"File Path",True,1800,200,1,100,135,True,0,Arial,8,-2147483633,0)
+gui.SS_Form1.txtFile.create(textbox,"",True,2325,330,0,100,335,True,0,Arial,8,16777215,1)
+gui.SS_Form1.cmd_txtFile.create(button)
+gui.SS_Form1.cmd_txtFile.caption("^")
+gui.SS_Form1.cmd_txtFile.visible(True)
+gui.SS_Form1.cmd_txtFile.size(330,330)
+gui.SS_Form1.cmd_txtFile.zorder(0)
+gui.SS_Form1.cmd_txtFile.position(2525,335)
+gui.SS_Form1.cmd_txtFile.enabled(True)
+gui.SS_Form1.cmd_txtFile.fontname("Arial")
+gui.SS_Form1.cmd_txtFile.fontsize(8)
+gui.SS_Form1.cmd_txtFile.event(click,cmd_txtfile_click)
+gui.SS_Form1.cmdCmpr.create(button)
+gui.SS_Form1.cmdCmpr.caption("Compare")
+gui.SS_Form1.cmdCmpr.visible(True)
+gui.SS_Form1.cmdCmpr.size(1000,360)
+gui.SS_Form1.cmdCmpr.zorder(0)
+gui.SS_Form1.cmdCmpr.position(100,835)
+gui.SS_Form1.cmdCmpr.enabled(True)
+gui.SS_Form1.cmdCmpr.fontname("Arial")
+gui.SS_Form1.cmdCmpr.fontsize(8)
+gui.SS_Form1.cmdCmpr.event(click,cmdcmpr_click)
+gui.SS_Form1.txtFile.tabstop(true)
+gui.SS_Form1.txtFile.tabindex(1)
+gui.SS_Form1.cmd_txtFile.tabstop(true)
+gui.SS_Form1.cmd_txtFile.tabindex(2)
+gui.SS_Form1.cmdCmpr.tabstop(true)
+gui.SS_Form1.cmdCmpr.tabindex(3)
+
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Variable.UDT.File.Define("Co",String)
+Variable.UDT.File.Define("Item",String)
+Variable.UDT.File.Define("Description",String)
+Variable.UDT.File.Define("Tariff",String)
+Variable.UDT.File.Define("Duty",String)
+Variable.UDT.File.Define("Origin",String)
+Variable.UDT.File.Define("EndUse",String)
+Variable.UDT.File.Define("Price",Float)
+Variable.UDT.File.Define("Date",Date)
+Variable.uGlobal.uFile.Declare("File")
+
+Variable.UDT.EDI.Define("Order_No",String,Order_No)
+Variable.UDT.EDI.Define("Order_Line",String,Order_Line)
+Variable.UDT.EDI.Define("Customer",String,Customer)
+Variable.UDT.EDI.Define("ShipTo_Code",String,ShipTo_Code)
+Variable.UDT.EDI.Define("PO_Num",String,PO_Num)
+Variable.UDT.EDI.Define("GSS_Part",String,GSS_Part)
+Variable.UDT.EDI.Define("Description",String,Description)
+Variable.UDT.EDI.Define("Qty_Order",Float,Qty_Order)
+Variable.UDT.EDI.Define("Price",Float,Price)
+Variable.UDT.EDI.Define("Trmnl",String)
+Variable.UDT.EDI.Define("KSL_Price",Float)
+Variable.UDT.EDI.Define("Beg_Date",Date)
+Variable.UDT.EDI.Define("Flag_Planned",String,Flag_Planned)
+Variable.uGlobal.uEDI.Declare("EDI")
+
+Program.Sub.Preflight.End
+
+
+Program.Sub.Main.Start
+
+
+
+F.ODBC.Connection!Con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+
+V.Local.iFOr.Declare(Long)
+V.Local.sPath.Declare(String)
+V.Local.stxt.Declare(String)
+V.Local.sLine.Declare(String)
+'
+'F.ODBC.Connection!Con.OpenRecordsetRW("rstSel","select * from GCG_Price_List")
+'V.Local.sPath.Set("C:\\temp.txt")
+'F.Intrinsic.File.File2String(V.Local.sPath,V.Local.stxt)
+'F.Intrinsic.String.Split(V.Local.stxt,V.Ambient.NewLine,V.Local.stxt)
+'F.Intrinsic.Control.For(V.Local.iFOr,V.Local.stxt.LBound,V.Local.stxt.UBound,1)
+'	F.Intrinsic.String.Split(V.Local.stxt(V.Local.iFOr),"*!*",V.Local.sLine)
+'	F.ODBC.Con!rstSel.AddNew
+'	F.ODBC.Con!rstSel.Set!Trmnl(V.Local.sLine(9))
+'	F.ODBC.Con!rstSel.Set!Order_NO(V.Local.sLine(0))
+'	F.ODBC.Con!rstSel.Set!Order_line(V.Local.sLine(1))
+'	F.ODBC.Con!rstSel.Set!Customer(V.Local.sLine(2))
+'	F.ODBC.Con!rstSel.Set!ShipTo_Code(V.Local.sLine(3))
+'	F.ODBC.Con!rstSel.Set!PO_Num(V.Local.sLine(4))
+'	F.ODBC.Con!rstSel.Set!GSS_Part(V.Local.sLine(5))
+'	F.ODBC.Con!rstSel.Set!Description(V.Local.sLine(6))
+'	F.ODBC.Con!rstSel.Set!Qty_Order(V.Local.sLine(7))
+'	F.ODBC.Con!rstSel.Set!Price(V.Local.sLine(8))
+'	F.ODBC.Con!rstSel.Set!KSL_Price(V.Local.sLine(10))
+'	F.ODBC.Con!rstSel.Set!Beg_Date(V.Local.sLine(11))
+'
+'F.Intrinsic.Control.Next(V.Local.iFOr)
+'F.ODBC.Con!rstSel.Close
+'F.Intrinsic.Control.CallSub(Ss_form1_unload)
+'
+
+
+Gui.SS_Form1..Show
+
+Program.Sub.Main.End
+
+
+program.sub.cmd_txtfile_click.start
+
+V.Local.sRet.Declare(String)
+
+F.Intrinsic.UI.ShowOpenFileDialog("",".xls|*.xls","",V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+	Gui.SS_Form1.txtFile.Text(V.Local.sRet(0).Trim)
+F.Intrinsic.Control.EndIf
+
+program.sub.cmd_txtfile_click.end
+
+
+program.sub.cmdcmpr_click.start
+
+
+Gui.SS_Form1..Visible(false)
+F.Intrinsic.Control.CallSub(Readfile)
+F.Intrinsic.Control.CallSub(Readgssprices)
+F.Intrinsic.Control.CallSub(Compare)
+F.Intrinsic.Control.CallSub(Printreport)
+F.Intrinsic.Control.CallSub(Ss_form1_unload)
+
+program.sub.cmdcmpr_click.end
+
+
+program.sub.ss_form1_unload.start
+
+F.ODBC.Connection!Con.Close
+F.Intrinsic.Control.End
+
+program.sub.ss_form1_unload.end
+
+
+Program.Sub.readFile.Start
+
+V.Local.sRet.Declare(String)
+
+' read spreadsheet to a string and load it into a udt
+F.Automation.MSExcel.ReadSpreadsheet(V.Screen.SS_Form1!txtFile.Text,V.Local.sRet)
+f.Intrinsic.Variable.LoadUDTFromString(v.uGlobal.uFile,"Co*!*Item*!*Description*!*Price*!*Date*!*Tariff*!*Duty*!*Origin*!*EndUse",v.Local.sRet,"$!$","*!*",False)
+
+' flag and delete the headings
+f.Intrinsic.Variable.UDTFlagOrdinal(V.uGlobal.uFile,True,"0")
+F.Intrinsic.Variable.UDTDeleteFlagged(V.uGlobal.uFile)
+
+' just need most recent date for each part
+F.Intrinsic.Variable.UDTMultiQuickSort(V.uGlobal.uFile!Item,False,V.uGlobal.uFile!Date,True)
+
+
+F.Intrinsic.Variable.UDTMultiFlagDuplicates(V.uGlobal.uFile!Item)
+F.Intrinsic.Variable.UDTDeleteFlagged(V.uGlobal.uFile)
+
+Program.Sub.readFile.End
+
+
+Program.Sub.readGSSPrices.Start
+
+V.Local.iFor.Declare(Long)
+V.Local.sRet.Declare(String)
+V.Local.sSel.Declare(String)
+
+
+V.uGlobal.uEDI.Redim(-1,-1)
+F.ODBC.Connection!Con.OpenRecordsetRO("rstSel","select Order_No, left(Order_Line,3) as Order_Line, Customer, ShipTo_Code, PO_Num, GSS_Part, Description, Qty_Order, Price,Flag_Planned from EDI_Lines order by Order_No, Order_Line, GSS_Part")
+	F.Intrinsic.Control.If(V.ODBC.Con!rstSel.EOF,=,False)
+		F.Intrinsic.Variable.LoadUDTFromRecordset("Con","rstSel","v.uGlobal.uEDI",False,1)
+	F.Intrinsic.Control.EndIf
+F.ODBC.Con!rstSel.Close
+
+
+' set the correct GSS price
+F.Intrinsic.Control.For(V.Local.iFor,V.uGlobal.uEDI.LBound,V.uGlobal.uEDI.UBound,1)
+	F.Intrinsic.String.Concat("select Amt_Price from Inventory_Mstr where Part ='",V.uGlobal.uEDI(v.Local.iFor)!GSS_Part,"' ",V.Local.sSel)
+	f.ODBC.Connection!Con.ExecuteAndReturn(v.Local.sSel,v.Local.sRet)
+	F.Intrinsic.Control.If(V.Local.sRet.trim,<>,"")
+		F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+		V.uGlobal.uEDI(v.Local.iFor)!Price.Set(V.Local.sRet(0))
+	F.Intrinsic.Control.EndIf
+	
+F.Intrinsic.Control.Next(V.Local.iFor)
+
+Program.Sub.readGSSPrices.End
+
+
+Program.Sub.compare.Start
+
+V.Local.iFor.Declare(Long)
+V.Local.iForRet.Declare(Long)
+V.Local.sRet.Declare(String)
+V.Local.fValA.Declare(Float)
+V.Local.fValB.Declare(Float)
+
+' flag all.  won't compare prices for parts that were loaded, but are not on the comparison report
+F.Intrinsic.Variable.UDTFlagAll(V.uGlobal.uEDI)
+
+' for each item on the incoming part, see if it matches the GSS price found for the EDI file
+F.Intrinsic.Control.For(V.Local.iFor,V.uGlobal.uFile!Item.LBound,V.uGlobal.uFile!Item.UBound,1)
+	F.Intrinsic.Variable.UDTMultiSeek(V.uGlobal.uEDI!GSS_Part,V.uGlobal.uFile(v.Local.iFor)!Item,V.Local.sRet)
+
+	F.Intrinsic.Control.If(V.Local.sRet.Trim,<>,"")
+		F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+		F.Intrinsic.Control.For(V.Local.iForRet,V.Local.sRet.LBound,V.Local.sRet.UBound,1)
+
+			' had problem where value to 2 places was the same, but when reading here, they must be different.  Will compare rounded values
+			V.Local.fValA.Set(V.uGlobal.uFile(v.Local.iFor)!Price)
+			V.Local.fValB.Set(V.uGlobal.uEDI(v.Local.sRet(v.Local.iForRet))!Price)
+			F.Intrinsic.Math.Round(V.Local.fValA,4,V.Local.fValA)
+			F.Intrinsic.Math.Round(V.Local.fValB,4,V.Local.fValB)
+			F.Intrinsic.Control.If(V.Local.fValA,<>,V.Local.fValB)
+				f.Intrinsic.Variable.UDTFlagOrdinal(v.uGlobal.uEDI,False,v.Local.sRet(v.Local.iForRet))
+				V.uGlobal.uEDI(v.Local.sRet(v.Local.iForRet))!KSL_Price.Set(V.uGlobal.uFile(v.Local.iFor)!Price)
+				V.uGlobal.uEDI(v.Local.sRet(v.Local.iForRet))!Beg_Date.Set(V.uGlobal.uFile(v.Local.iFor)!Date)
+			F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.Next(V.Local.iForRet)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Next(V.Local.iFor)
+
+F.Intrinsic.Variable.UDTDeleteFlagged(V.uGlobal.uEDI)
+
+Program.Sub.compare.End
+
+
+Program.Sub.printReport.Start
+
+V.Local.iRptId.Declare(Long)
+V.Local.sRptPath.Declare(String)
+V.Local.sParams.Declare(String)
+V.Local.sVals.Declare(String)
+V.Local.sSel.Declare(String)
+V.Local.stemp.Declare(String)
+
+
+F.Intrinsic.String.Concat("delete from GCG_3349_Price_List where Trmnl ='",V.Caller.Terminal,"'",V.Local.sSel)
+F.ODBC.Connection!Con.Execute(V.Local.sSel)
+
+F.Intrinsic.Variable.SetUDTFieldReference(V.uGlobal.uEDI!KSL_Price,"KSL_Price")
+F.Intrinsic.Variable.SetUDTFieldReference(V.uGlobal.uEDI!Beg_Date,"Beg_Date")
+F.Intrinsic.Variable.SetUDTFieldReference(V.uGlobal.uEDI!Trmnl,"Trmnl")
+F.Intrinsic.Variable.SetUDTFieldReference(V.uGlobal.uEDI!Flag_Planned,"")
+F.Intrinsic.Variable.UDTSetMemberValue(V.uGlobal.uEDI!Trmnl,V.Caller.Terminal)
+F.Intrinsic.Variable.UDTMultiSeekSet(V.uGlobal.uEDI!KSL_Price,"",V.uGlobal.uEDI!KSL_Price,0)
+F.Intrinsic.Variable.UDTMultiSeekSet(V.uGlobal.uEDI!Price,"",V.uGlobal.uEDI!Price,0)
+F.Intrinsic.Variable.UDTMultiSeekSet(V.uGlobal.uEDI!Flag_Planned,"F",V.uGlobal.uEDI!Order_No,"FRCST")
+
+
+F.Intrinsic.String.Concat(V.Caller.FilesDir,"\temp.txt",V.Local.stemp)
+Function.Intrinsic.Variable.UDTToString(v.uGlobal.uEDI,"Order_No*!*Order_Line*!*Customer*!*ShipTo_Code*!*Po_Num*!*GSS_Part*!*Description*!*Qty_Order*!*Price*!*Trmnl*!*KSL_Price*!*Beg_Date",v.Ambient.NewLine,"*!*",v.Local.sSel)
+F.Intrinsic.File.String2File(V.Local.stemp,V.Local.sSel)
+
+
+
+' load the udt to the table
+F.ODBC.Connection!Con.OpenRecordsetRW("rstSel","select * from GCG_3349_Price_List")
+f.Intrinsic.Variable.SaveUDTToRecordset("Con","rstSel","v.uGlobal.uEDI")
+
+F.Intrinsic.String.Split("Trmnl","*!*",V.Local.sParams)
+F.Intrinsic.String.Concat(V.Caller.Terminal,"",V.Local.sVals)
+F.Intrinsic.String.Split(V.Local.sVals,"*!*",V.Local.sVals)
+
+F.Intrinsic.String.Concat(V.Caller.BusintDir,"\Custom\GCG_3349_Price_List_Discrepancy.rpt",V.Local.sRptPath)
+F.Global.BI.InitializeReport("GCG_3349_Price_List_Discrepancy",V.Local.sRptPath,V.Local.iRptId)
+F.Global.BI.PrintReport(V.Local.iRptId,0,V.Local.sParams,V.Local.sVals,"",False)
+
+
+
+
+
+Program.Sub.printReport.End
+
+
+Program.Sub.Comments.Start
+${$0$}$GCG_Price_List_Discrepancy$}$JCT$}$4/22/2013
+${$1$}$$}$$}$0$}$32502$}$Post Process Hook$}$4/22/2013 8:31:12 AM$}$(Program: ORD040GI; Screen: )
+OE>File>Order Entry from EDI Transactions
+${$2$}$$}$$}$1$}$4$}$GCG_Price_List.sql$}$4/22/2013 8:18:01 AM$}$print table for report
+${$2$}$$}$$}$0$}$4$}$GCG_Price_List_Discrepancy.rpt$}$4/22/2013 8:08:10 AM$}$report to print all discrepancies that were found between thos on the incoming ist and the price found in GSS Inventory
+${$3$}$0$}$$}$-1$}$-1$}$$}$1/1/1900$}$For Metalflex
+KSL send a price list.  Need to compare the prices on this list with the prices in GSS.  A report will print with the discrepancies found
+
+Program.Sub.Comments.End
+Program.Sub.ScreenSS.Start
+SS_Form1{{CAPTION::GCG Price List Discrepancy Report
+SS_Form1.CTRL{{NAME::txtFile\\TYPE::2\\CAPTION::File Path\\TABSTOP::1\\GROUP::1\\BROWSER::1\\SIZE::1
+SS_Form1.CTRL{{NAME::cmdCmpr\\TYPE::5\\CAPTION::Compare\\TABSTOP::2\\GROUP::2\\BROWSER::0\\SIZE::1
+
+Program.Sub.ScreenSS.End
+
